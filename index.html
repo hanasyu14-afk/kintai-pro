@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Kintai Pro" />
+    <title>Kintai Pro | Version 0.1</title>
+    <link rel="apple-touch-icon" href="icons/icon.svg" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">KP</div>
+          <div>
+            <h1>Kintai Pro</h1>
+            <p>Version 0.1</p>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="メインメニュー">
+          <button class="nav-link active" data-target="dashboard" type="button">🏠 ダッシュボード</button>
+          <button class="nav-link" data-target="attendance" type="button">📝 勤怠入力</button>
+          <button class="nav-link" data-target="monthly" type="button">📅 月間集計</button>
+          <button class="nav-link" data-target="yearly" type="button">📈 年間集計</button>
+          <button class="nav-link" data-target="payroll" type="button">💴 給与試算</button>
+          <button class="nav-link" data-target="paidleave" type="button">🏖 有給管理</button>
+          <button class="nav-link" data-target="settings" type="button">⚙ 設定</button>
+        </nav>
+
+        <div class="sidebar-card">
+          <h3>今月の期間</h3>
+          <p id="sidebarPeriod">読み込み中...</p>
+          <p class="muted">16日〜翌15日</p>
+        </div>
+      </aside>
+
+      <div class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">勤怠管理システム</p>
+            <h2 id="headerTitle">ダッシュボード</h2>
+          </div>
+          <div class="topbar-actions">
+            <div class="period-pill" id="topbarPeriod">読み込み中...</div>
+            <button id="newEntryButton" class="primary-btn" type="button">新規登録</button>
+            <button class="secondary-btn" type="button" onclick="logout()">ログアウト</button>
+          </div>
+        </header>
+
+        <main class="content">
+          <section id="dashboard" class="view active" aria-label="ダッシュボード">
+            <div class="stats-grid">
+              <article class="card stat-card">
+                <p class="stat-label">勤務日数</p>
+                <h3 id="statWorkDays">0日</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">実働時間</p>
+                <h3 id="statWorkingHours">0h</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">残業時間</p>
+                <h3 id="statOvertime">0h</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">深夜時間</p>
+                <h3 id="statNightHours">0h</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">休日勤務</p>
+                <h3 id="statHolidayHours">0h</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">有給残数</p>
+                <h3 id="statPaidLeave">10日</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">給与試算</p>
+                <h3 id="statSalary">¥0</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">交通費</p>
+                <h3 id="statTraffic">¥0</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">今月支給見込</p>
+                <h3 id="statTotalSalary">¥0</h3>
+              </article>
+            </div>
+
+            <div class="card">
+              <div class="card-title-row">
+                <h3>勤怠サマリー</h3>
+                <p class="muted" id="summaryPeriod">期間を読み込み中...</p>
+              </div>
+              <div id="summaryList" class="summary-list"></div>
+            </div>
+
+            <div class="summary-card">
+              <h3>予想給与</h3>
+              <p id="salaryAmount">0 円</p>
+            </div>
+
+            <div class="card">
+              <div class="card-title-row">
+                <h3>直近の入力</h3>
+                <span class="muted">ローカル保存</span>
+              </div>
+              <div id="recentEntries" class="table-wrapper"></div>
+            </div>
+
+            <section class="panel">
+              <h2>打刻履歴</h2>
+              <div id="stampHistory"></div>
+            </section>
+
+            <section class="panel">
+              <h2>週間/月間レポート</h2>
+              <div id="reportSummary"></div>
+            </section>
+
+            <section class="panel">
+              <h2>通知</h2>
+              <div id="notifications"></div>
+            </section>
+
+            <section class="panel">
+              <h2>月間カレンダー</h2>
+              <div id="calendar"></div>
+            </section>
+
+            <section class="panel">
+              <h2>休暇状況</h2>
+              <div id="leaveSummary"></div>
+            </section>
+
+            <section class="panel">
+              <h2>従業員</h2>
+              <select id="employeeSelect"></select>
+            </section>
+
+            <section class="panel">
+              <h2>給与明細</h2>
+              <div id="payroll"></div>
+            </section>
+          </section>
+
+          <section id="attendance" class="view" aria-label="勤怠入力">
+            <div class="card form-card">
+              <div class="card-title-row">
+                <h3>勤怠登録</h3>
+                <p class="muted">入力後は自動でローカルストレージに保存されます</p>
+              </div>
+
+              <form id="attendanceForm" class="attendance-form">
+                <div class="form-grid">
+                  <label class="field">
+                    <span>日付</span>
+                    <input id="recordDate" type="date" required />
+                  </label>
+
+                  <label class="field">
+                    <span>勤務区分</span>
+                    <select id="workType">
+                      <option value="通常勤務">通常勤務</option>
+                      <option value="休日勤務">休日勤務</option>
+                      <option value="有給休暇">有給休暇</option>
+                      <option value="欠勤">欠勤</option>
+                      <option value="公休">公休</option>
+                      <option value="振替休日">振替休日</option>
+                      <option value="遅刻">遅刻</option>
+                      <option value="早退">早退</option>
+                      <option value="半休（午前）">半休（午前）</option>
+                      <option value="半休（午後）">半休（午後）</option>
+                    </select>
+                  </label>
+
+                  <label class="field">
+                    <span>シフトコード</span>
+                    <select id="shiftCode">
+                      <option value="">選択してください</option>
+                      <option>070</option>
+                      <option>071</option>
+                      <option>073</option>
+                      <option>074</option>
+                      <option>080</option>
+                      <option>081</option>
+                      <option>083</option>
+                      <option>084</option>
+                      <option>090</option>
+                      <option>091</option>
+                      <option>093</option>
+                      <option>094</option>
+                      <option>100</option>
+                      <option>101</option>
+                      <option>103</option>
+                      <option>104</option>
+                      <option>110</option>
+                      <option>111</option>
+                      <option>113</option>
+                      <option>114</option>
+                      <option>120</option>
+                      <option>121</option>
+                      <option>123</option>
+                      <option>124</option>
+                      <option>130</option>
+                      <option>131</option>
+                      <option>133</option>
+                      <option>134</option>
+                      <option>140</option>
+                      <option>141</option>
+                      <option>143</option>
+                      <option>144</option>
+                      <option>150</option>
+                      <option>151</option>
+                      <option>153</option>
+                      <option>154</option>
+                      <option>160</option>
+                      <option>161</option>
+                      <option>163</option>
+                      <option>164</option>
+                      <option>170</option>
+                      <option>171</option>
+                      <option>173</option>
+                      <option>174</option>
+                      <option>180</option>
+                      <option>181</option>
+                      <option>183</option>
+                      <option>184</option>
+                      <option>190</option>
+                      <option>191</option>
+                      <option>193</option>
+                      <option>194</option>
+                      <option>200</option>
+                      <option>201</option>
+                      <option>203</option>
+                      <option>204</option>
+                      <option>210</option>
+                      <option>211</option>
+                      <option>213</option>
+                      <option>214</option>
+                      <option>220</option>
+                      <option>221</option>
+                      <option>223</option>
+                      <option>224</option>
+                      <option>230</option>
+                    </select>
+                  </label>
+
+                  <label class="field">
+                    <span>勤務予定時間</span>
+                    <input id="plannedHours" type="number" step="0.25" min="0" value="8" />
+                  </label>
+
+                  <label class="field">
+                    <span>出勤</span>
+                    <div class="time-input">
+                      <input id="startTime" type="time" />
+                      <button type="button" id="nowTimeButton">現在時刻</button>
+                    </div>
+                  </label>
+
+                  <label class="field">
+                    <span>退勤</span>
+                    <input id="endTime" type="text" placeholder="例 16:30 32:00" />
+                  </label>
+
+                  <label class="field">
+                    <span>休憩開始</span>
+                    <input id="breakStart" type="text" placeholder="例 12:00" />
+                  </label>
+
+                  <label class="field">
+                    <span>休憩終了</span>
+                    <input id="breakEnd" type="text" placeholder="例 13:00" />
+                  </label>
+
+                  <label class="field full-width">
+                    <span>打刻履歴</span>
+                    <textarea id="punchHistory" rows="3" placeholder="例: 09:00-18:00&#10;10:00-17:00"></textarea>
+                  </label>
+
+                  <label class="field full-width">
+                    <span>備考</span>
+                    <input id="remarks" type="text" placeholder="備考を入力" />
+                  </label>
+                </div>
+
+                <section class="panel">
+                  <h2>打刻</h2>
+                  <button id="clockInButton" class="clock-in">🟢 出勤</button>
+                  <button id="clockOutButton" class="clock-out">🔴 退勤</button>
+                </section>
+
+                <div class="card">
+                  <div class="card-title-row">
+                    <h3>自動計算結果</h3>
+                  </div>
+
+                  <div class="stats-grid">
+                    <article class="card stat-card">
+                      <p class="stat-label">実働時間</p>
+                      <h3 id="calcWorkingHours">0.00 h</h3>
+                    </article>
+
+                    <article class="card stat-card">
+                      <p class="stat-label">残業時間</p>
+                      <h3 id="calcOvertimeHours">0.00 h</h3>
+                    </article>
+
+                    <article class="card stat-card">
+                      <p class="stat-label">深夜勤務</p>
+                      <h3 id="calcNightHours">0.00 h</h3>
+                    </article>
+
+                    <article class="card stat-card">
+                      <p class="stat-label">休憩時間</p>
+                      <h3 id="calcBreakHours">0.00 h</h3>
+                    </article>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button class="primary-btn" type="submit">保存する</button>
+                  <button id="resetFormButton" class="secondary-btn" type="button">クリア</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-title-row">
+                <h3>登録済みデータ</h3>
+                <p class="muted" id="recordCountText">0件</p>
+              </div>
+              <div id="recordsTable" class="table-wrapper"></div>
+            </div>
+          </section>
+
+          <section id="monthly" class="view">
+            <div class="stats-grid">
+              <article class="card stat-card">
+                <p class="stat-label">勤務日数</p>
+                <h3 id="monthWorkDays">0 日</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">実働時間</p>
+                <h3 id="monthWorkingHours">0.00 h</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">残業時間</p>
+                <h3 id="monthOvertimeHours">0.00 h</h3>
+              </article>
+
+              <article class="card stat-card">
+                <p class="stat-label">深夜勤務</p>
+                <h3 id="monthNightHours">0.00 h</h3>
+              </article>
+            </div>
+
+            <div class="card">
+              <h3>月間勤怠一覧</h3>
+              <div id="monthlyTable" class="table-wrapper"></div>
+            </div>
+          </section>
+
+          <section id="yearly" class="view">
+            <div class="card">
+              <h2>年間集計</h2>
+              <p>Version0.2で実装予定</p>
+            </div>
+          </section>
+
+          <section id="payroll" class="view">
+            <div class="card">
+              <h2>給与試算</h2>
+              <p>Version0.3で実装予定</p>
+            </div>
+          </section>
+
+          <section id="paidleave" class="view">
+            <div class="card">
+              <h2>有給管理</h2>
+              <p>Version0.3で実装予定</p>
+            </div>
+          </section>
+
+          <section id="settings" class="view">
+            <div class="card">
+              <div class="card-title-row">
+                <h3>設定</h3>
+                <button id="exportCsvButton" class="secondary-btn" type="button">CSV出力</button>
+              </div>
+              <form id="settingsForm" class="settings-form">
+                <div class="settings-grid">
+                  <label class="field">
+                    <span>基本時給</span>
+                    <input id="hourlyRate" type="number" min="0" step="100" />
+                  </label>
+                  <label class="field">
+                    <span>残業倍率</span>
+                    <input id="overtimeRate" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="field">
+                    <span>深夜倍率</span>
+                    <input id="nightRate" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="field">
+                    <span>休日倍率</span>
+                    <input id="holidayRate" type="number" min="0" step="0.01" />
+                  </label>
+                  <label class="field">
+                    <span>有給上限日数</span>
+                    <input id="paidLeaveTotal" type="number" min="0" step="1" />
+                  </label>
+                  <label class="field">
+                    <span>テーマ</span>
+                    <select id="themeSelect">
+                      <option value="dark">ダーク</option>
+                      <option value="light">ライト</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="primary-btn" type="submit">保存する</button>
+                </div>
+                <p id="settingsMessage" class="muted"></p>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/attendance.js"></script>
+    <script src="js/calculation.js"></script>
+    <script src="js/monthly.js"></script>
+    <script src="js/yearly.js"></script>
+    <script src="js/payroll.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/graph.js"></script>
+    <script src="js/export.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+            console.warn('Service worker registration failed:', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
